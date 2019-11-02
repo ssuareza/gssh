@@ -1,27 +1,28 @@
-EXECUTABLE=gssh
-LINUX=$(EXECUTABLE)-linux-amd64
-DARWIN=$(EXECUTABLE)-darwin-amd64
-VERSION=$(shell git tag)
+ifeq ($(shell uname -s), Darwin)
+    shasum=shasum -a256
+else
+    shasum=sha256sum
+endif
 
-.PHONY: all clean
+repo=github.com/ssuareza/gssh
+version=$(shell git describe --all --dirty --long | awk -F"-|/" '/^heads/ {print $$2 "-" substr($$4, 2) "-" $$5}; /^tags/ { print $$2 }')
+build_args=-ldflags "-X main.versionString=$(version)" ./cmd/gssh
+files=$(shell find cmd -type f)
 
-all: build ## Build
+.PHONY: test
 
-build: linux darwin ## Build binaries
-	@echo version: $(VERSION)
+all: test build checksums
 
-linux: $(LINUX) ## Build for Linux
+build: build-linux build-darwin
 
-darwin: $(DARWIN) ## Build for Darwin (macOS)
+build-linux: build/gssh-$(version)-linux-amd64
 
-$(LINUX):
-	env GOOS=linux GOARCH=amd64 go build -i -v -o $(LINUX) -ldflags="-s -w -X main.version=$(VERSION)"  ./cmd/gssh
+build/gssh-$(version)-linux-amd64: ${files}
+	GOARCH=amd64 GOOS=linux go build -o $@ $(build_args)
 
-$(DARWIN):
-	env GOOS=darwin GOARCH=amd64 go build -i -v -o $(DARWIN) -ldflags="-s -w -X main.version=$(VERSION)"  ./cmd/gssh
+build-darwin: build/gssh-$(version)-darwin-amd64
+build/gssh-$(version)-darwin-amd64: ${files}
+	GOARCH=amd64 GOOS=darwin go build -o $@ $(build_args)
 
-clean: ## Remove previous build
-	rm -f $(WINDOWS) $(LINUX) $(DARWIN)
-
-help: ## Display available commands
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+checksums: build
+	cd build/ && ${shasum} * > $(version)-SHA256SUMS
