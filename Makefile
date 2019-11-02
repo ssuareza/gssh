@@ -1,7 +1,7 @@
 EXECUTABLE=gssh
 LINUX=$(EXECUTABLE)-linux-amd64
 DARWIN=$(EXECUTABLE)-darwin-amd64
-VERSION=$(shell git describe --tags --always --long --dirty)
+VERSION=$(shell git tag)
 
 .PHONY: all clean
 
