@@ -7,7 +7,7 @@ Go to the [releases](https://github.com/ssuareza/gssh/releases) page and downloa
 
 Example:
 ```
-sudo curl -o /usr/local/bin/gssh https://github.com/ssuareza/releases/download/v0.0.4/tf-v0.0.4-darwin-amd64
+sudo curl -o /usr/local/bin/gssh https://github.com/ssuareza/releases/download/v0.0.1/gssh-v0.0.1-darwin-amd64
 sudo chmod +x /usr/local/bin/gssh
 ```
 
