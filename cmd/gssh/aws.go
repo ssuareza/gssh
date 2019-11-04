@@ -49,7 +49,7 @@ func nilGuard(ptr *string) string {
 	return *ptr
 }
 
-// return instances as a map
+// get fields and return instances as a map
 func sort(i *ec2.DescribeInstancesOutput) []map[string]string {
 	var instances []map[string]string
 
