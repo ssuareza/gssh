@@ -5,16 +5,9 @@ SSH client to connect AWS instances.
 
 Go to the [releases](https://github.com/ssuareza/gssh/releases) page and download the latest binary for your platform. Make sure it is executable (`chmod +x tf`) and move it to a folder on your path (such as `/usr/local/bin` or `/usr/bin`).
 
-Example:
-```
-sudo curl -o /usr/local/bin/gssh https://github.com/ssuareza/gssh/releases/download/v0.0.1/gssh-v0.0.1-darwin-amd64
-sudo chmod +x /usr/local/bin/gssh
-```
-
 ## Configuration
 
 `gssh` it will be configured the first time launched. All configuration will be saved in "$HOME/.gssh".
-
 
 ## Usage
 
@@ -30,5 +23,5 @@ i-0208d936b38ea7e22     app.prod        172.29.17.57
 i-0e06e157bc5fa8611     http.dev        172.29.16.48
 i-037d57f116d8f8292     app.dev         172.29.19.25
 
-Select InstanceID:
+Select InstanceID: i-027f3873ebf0b2bC4
 ````
