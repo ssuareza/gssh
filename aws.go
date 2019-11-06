@@ -1,4 +1,4 @@
-package main
+package gssh
 
 import (
 	"fmt"
@@ -8,9 +8,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-type instances struct{}
-
-func (i instances) new(profile string, region string) ([]map[string]string, error) {
+// GetInstances gets the instances list from aws
+func GetInstances(profile string, region string) ([]map[string]string, error) {
 	// open session
 	sess, err := session.NewSessionWithOptions(session.Options{
 		Profile: profile,
@@ -39,7 +38,7 @@ func (i instances) new(profile string, region string) ([]map[string]string, erro
 
 	res, _ := svc.DescribeInstances(params)
 
-	return sort(res), err
+	return Sort(res), err
 }
 
 func nilGuard(ptr *string) string {
@@ -49,8 +48,8 @@ func nilGuard(ptr *string) string {
 	return *ptr
 }
 
-// get fields and return instances as a map
-func sort(i *ec2.DescribeInstancesOutput) []map[string]string {
+// Sort gets only a few metadata fields from instances list
+func Sort(i *ec2.DescribeInstancesOutput) []map[string]string {
 	var instances []map[string]string
 
 	for _, reservation := range i.Reservations {

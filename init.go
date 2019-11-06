@@ -1,4 +1,4 @@
-package main
+package gssh
 
 import (
 	"fmt"

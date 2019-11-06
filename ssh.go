@@ -1,4 +1,4 @@
-package main
+package gssh
 
 import (
 	"io/ioutil"
@@ -10,7 +10,7 @@ import (
 )
 
 //  return publickey content
-func publicKeyFile(file string) (ssh.AuthMethod, error) {
+func PublicKeyFile(file string) (ssh.AuthMethod, error) {
 	buffer, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func publicKeyFile(file string) (ssh.AuthMethod, error) {
 }
 
 // connect and open terminal
-func connect(conn *ssh.Client) {
+func Connect(conn *ssh.Client) {
 	sess, err := conn.NewSession()
 	if err != nil {
 		panic(err)
@@ -52,7 +52,7 @@ func connect(conn *ssh.Client) {
 }
 
 // connect trought bastion
-func proxy(bastion *ssh.Client, host string, clientCfg *ssh.ClientConfig) (*ssh.Client, error) {
+func Proxy(bastion *ssh.Client, host string, clientCfg *ssh.ClientConfig) (*ssh.Client, error) {
 	netConn, _ := bastion.Dial("tcp", host)
 
 	conn, chans, reqs, err := ssh.NewClientConn(netConn, host, clientCfg)
@@ -60,13 +60,13 @@ func proxy(bastion *ssh.Client, host string, clientCfg *ssh.ClientConfig) (*ssh.
 	return ssh.NewClient(conn, chans, reqs), err
 }
 
-func shell(host string, c config) error {
-	user := c.user
-	port := c.port
-	bastion := c.bastion
+func Shell(host string, c Config) error {
+	user := c.User
+	port := c.Port
+	bastion := c.Bastion
 
 	// configure ssh connection
-	publicKey, err := publicKeyFile(os.Getenv("HOME") + "/.ssh/id_rsa")
+	publicKey, err := PublicKeyFile(os.Getenv("HOME") + "/.ssh/id_rsa")
 	if err != nil {
 		log.Println(err)
 	}
@@ -83,19 +83,19 @@ func shell(host string, c config) error {
 	if len(bastion) != 0 {
 		conn, _ := ssh.Dial("tcp", bastion+":"+port, config)
 		defer conn.Close()
-		newConn, err := proxy(conn, host+":"+port, config)
+		newConn, err := Proxy(conn, host+":"+port, config)
 		if err != nil {
 			return err
 		}
 
 		// open terminal
-		connect(newConn)
+		Connect(newConn)
 	} else { // or not
 		conn, _ := ssh.Dial("tcp", host+":"+port, config)
 		defer conn.Close()
 
 		// open terminal
-		connect(conn)
+		Connect(conn)
 	}
 	return err
 }

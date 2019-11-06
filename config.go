@@ -1,4 +1,4 @@
-package main
+package gssh
 
 import (
 	"os"
@@ -6,15 +6,17 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-type config struct {
-	aws     string
-	region  string
-	user    string
-	port    string
-	bastion string
+// Config holds gssh configuration
+type Config struct {
+	AWS     string
+	Region  string
+	User    string
+	Port    string
+	Bastion string
 }
 
-func (c config) new() (config, error) {
+// ReadConfig reads gssh configuration
+func ReadConfig() (Config, error) {
 	cfgFile := os.Getenv("HOME") + "/.gssh"
 	cfg, err := ini.Load(cfgFile)
 
@@ -25,5 +27,5 @@ func (c config) new() (config, error) {
 	port := cfg.Section("default").Key("port").String()
 	bastion := cfg.Section("default").Key("bastion").String()
 
-	return config{aws: aws, region: region, user: user, port: port, bastion: bastion}, err
+	return Config{AWS: aws, Region: region, User: user, Port: port, Bastion: bastion}, err
 }
