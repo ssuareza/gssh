@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gosuri/uitable"
+	"github.com/ssuareza/gssh"
 )
 
 func print(i []map[string]string) {
@@ -30,13 +31,13 @@ func getIP(id string, i []map[string]string) (string, error) {
 
 func main() {
 	// get config
-	c, err := config{}.new()
+	c, err := gssh.ReadConfig()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	// get instances
-	i, err := instances{}.new(c.aws, c.region)
+	i, err := gssh.GetInstances(c.AWS, c.Region)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -57,5 +58,5 @@ func main() {
 	}
 
 	// and connect
-	shell(ip, c)
+	gssh.Shell(ip, c)
 }
