@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-//  return publickey content
+// PublicKeyFile returns publickey content
 func PublicKeyFile(file string) (ssh.AuthMethod, error) {
 	buffer, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -23,7 +23,7 @@ func PublicKeyFile(file string) (ssh.AuthMethod, error) {
 	return ssh.PublicKeys(key), nil
 }
 
-// connect and open terminal
+// Connect connects trough ssh
 func Connect(conn *ssh.Client) {
 	sess, err := conn.NewSession()
 	if err != nil {
@@ -51,7 +51,7 @@ func Connect(conn *ssh.Client) {
 	sess.Wait()
 }
 
-// connect trought bastion
+// Proxy connects trought a bastion server
 func Proxy(bastion *ssh.Client, host string, clientCfg *ssh.ClientConfig) (*ssh.Client, error) {
 	netConn, _ := bastion.Dial("tcp", host)
 
@@ -60,6 +60,7 @@ func Proxy(bastion *ssh.Client, host string, clientCfg *ssh.ClientConfig) (*ssh.
 	return ssh.NewClient(conn, chans, reqs), err
 }
 
+// Shell opens a terminal in destination
 func Shell(host string, c Config) error {
 	user := c.User
 	port := c.Port
