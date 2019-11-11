@@ -1,7 +1,7 @@
 # gssh
 SSH client to connect AWS instances.
 
-## Installing
+## Installation
 
 Go to the [releases](https://github.com/ssuareza/gssh/releases) page and download the latest binary for your platform. Make sure it is executable (`chmod +x tf`) and move it to a folder on your path (such as `/usr/local/bin` or `/usr/bin`).
 
