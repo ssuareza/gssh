@@ -37,7 +37,7 @@ func main() {
 	}
 
 	// get instances
-	i, err := gssh.GetInstances(c.AWS, c.Region)
+	i, err := gssh.Get(c.AWS, c.Region)
 	if err != nil {
 		log.Panic(err)
 	}

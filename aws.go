@@ -8,8 +8,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-// GetInstances gets the instances list from aws
-func GetInstances(profile string, region string) ([]map[string]string, error) {
+// Get gets the instances from aws
+func Get(profile string, region string) ([]map[string]string, error) {
 	// open session
 	sess, err := session.NewSessionWithOptions(session.Options{
 		Profile: profile,
