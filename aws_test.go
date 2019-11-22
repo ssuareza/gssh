@@ -5,46 +5,16 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
 func TestMyFunc(t *testing.T) {
-	var instances MockEC2API
-	instancesMap, err := instances.DescribeInstances()
-	if err != nil {
-		t.Error("Not able to get instances")
-	}
-
-	sorted := Sort(instancesMap)
-	//fmt.Printf("%s", sorted)
-	if sorted == nil {
-		t.Error("Not able to get sorted instances map")
+	_, count := Filter(testData())
+	if count != 2 {
+		t.Error("Number of instances expected 2")
 	}
 }
 
-type MockEC2API struct {
-	ec2iface.EC2API
-	//DescribeInstancesMethod func(*ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, error)
-}
-
-func (m *MockEC2API) DescribeInstances() (*ec2.DescribeInstancesOutput, error) {
-	input := &ec2.DescribeInstancesInput{
-		Filters: []*ec2.Filter{
-			&ec2.Filter{
-				Name: aws.String("instance-state-name"),
-				Values: []*string{
-					aws.String("running"),
-					aws.String("pending"),
-				},
-			},
-		},
-	}
-	data, err := testData(input)
-	return data, err
-
-}
-
-func testData(in *ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, error) {
+func testData() *ec2.DescribeInstancesOutput {
 	output := &ec2.DescribeInstancesOutput{
 		Reservations: []*ec2.Reservation{
 			&ec2.Reservation{
@@ -89,5 +59,5 @@ func testData(in *ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, err
 		},
 	}
 
-	return output, nil
+	return output
 }

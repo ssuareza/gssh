@@ -6,11 +6,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
 // Get gets the instances from aws
-func Get(profile string, region string) ([]map[string]string, error) {
+func Get(profile string, region string) (*ec2.DescribeInstancesOutput, error) {
 	// open session
 	sess, err := session.NewSessionWithOptions(session.Options{
 		Profile: profile,
@@ -37,22 +36,23 @@ func Get(profile string, region string) ([]map[string]string, error) {
 	svc := ec2.New(sess)
 
 	// this is for testing
-	StubEC2(svc, input)
+	//StubEC2(svc, input)
 
 	// get instances
 	res, _ := svc.DescribeInstances(input)
 
-	return Sort(res), err
+	//return Sort(res), err
+	return res, err
 }
 
 // stub (this is for testing)
-func StubEC2(svc ec2iface.EC2API, input *ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, error) {
+/*func StubEC2(svc ec2iface.EC2API, input *ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, error) {
 	res, err := svc.DescribeInstances(input)
 	if err != nil {
 		return nil, err
 	}
 	return res, err
-}
+}*/
 
 func nilGuard(ptr *string) string {
 	if ptr == nil {
@@ -61,8 +61,8 @@ func nilGuard(ptr *string) string {
 	return *ptr
 }
 
-// Sort gets only a few metadata fields from instances list
-func Sort(i *ec2.DescribeInstancesOutput) []map[string]string {
+// Filter gets only a few metadata fields from ec2.DescribeInstancesOutput
+func Filter(i *ec2.DescribeInstancesOutput) ([]map[string]string, int) {
 	var instances []map[string]string
 
 	for _, reservation := range i.Reservations {
@@ -82,5 +82,7 @@ func Sort(i *ec2.DescribeInstancesOutput) []map[string]string {
 		}
 	}
 
-	return instances
+	count := len(instances)
+
+	return instances, count
 }
