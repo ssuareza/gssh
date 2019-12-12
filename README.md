@@ -10,6 +10,7 @@ brew install ssuareza/brew/gssh
 ```
 
 ### Linux:
+```
 curl -sLo gssh https://github.com/ssuareza/gssh/releases/download/v0.0.1/gssh-v0.0.1-linux-amd64
 chmod +x gssh
 sudo mv gssh /usr/local/bin/
