@@ -24,12 +24,9 @@ func getIP(id string, i []map[string]string, iptype string) (string, error) {
 	for _, instance := range i {
 		if instance["instance-id"] == id {
 			if iptype == "public" {
-				//fmt.Println("PUBLIC!!!")
 				return instance["public-ip"], nil
-			} else {
-				//fmt.Println("PRIVATE!!!")
-				return instance["private-ip"], nil
 			}
+			return instance["private-ip"], nil
 		}
 	}
 	return "", errors.New("IP not found")
@@ -43,12 +40,17 @@ func main() {
 	}
 
 	// get instances
-	instances, err := gssh.Get(c.AWS, c.Region)
+	svc, err := gssh.NewService(c.AWS, c.Region)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	i, _ := gssh.Filter(instances)
+	instances, err := gssh.NewInstances(svc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	i := instances.Filter()
 	if err != nil {
 		log.Panic(err)
 	}

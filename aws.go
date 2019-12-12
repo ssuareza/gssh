@@ -6,11 +6,16 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
-// Get gets the instances from aws
-func Get(profile string, region string) (*ec2.DescribeInstancesOutput, error) {
-	// open session
+// Instances contains the list of instances obtained from aws
+type Instances struct {
+	*ec2.DescribeInstancesOutput
+}
+
+// NewService creates a service connection with ec2
+func NewService(profile string, region string) (ec2iface.EC2API, error) {
 	sess, err := session.NewSessionWithOptions(session.Options{
 		Profile: profile,
 		Config: aws.Config{
@@ -18,7 +23,16 @@ func Get(profile string, region string) (*ec2.DescribeInstancesOutput, error) {
 		},
 		SharedConfigState: session.SharedConfigEnable,
 	})
+	if err != nil {
+		return nil, err
+	}
 
+	return ec2.New(sess), nil
+
+}
+
+// NewInstances gets the instances from aws
+func NewInstances(svc ec2iface.EC2API) (*Instances, error) {
 	// Only grab instances that are running or just started
 	input := &ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
@@ -32,27 +46,13 @@ func Get(profile string, region string) (*ec2.DescribeInstancesOutput, error) {
 		},
 	}
 
-	// create service
-	svc := ec2.New(sess)
-
-	// this is for testing
-	//StubEC2(svc, input)
-
-	// get instances
-	res, _ := svc.DescribeInstances(input)
-
-	//return Sort(res), err
-	return res, err
-}
-
-// stub (this is for testing)
-/*func StubEC2(svc ec2iface.EC2API, input *ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, error) {
 	res, err := svc.DescribeInstances(input)
 	if err != nil {
 		return nil, err
 	}
-	return res, err
-}*/
+
+	return &Instances{res}, nil
+}
 
 func nilGuard(ptr *string) string {
 	if ptr == nil {
@@ -62,7 +62,7 @@ func nilGuard(ptr *string) string {
 }
 
 // Filter gets only a few metadata fields from ec2.DescribeInstancesOutput
-func Filter(i *ec2.DescribeInstancesOutput) ([]map[string]string, int) {
+func (i *Instances) Filter() []map[string]string {
 	var instances []map[string]string
 
 	for _, reservation := range i.Reservations {
@@ -82,7 +82,5 @@ func Filter(i *ec2.DescribeInstancesOutput) ([]map[string]string, int) {
 		}
 	}
 
-	count := len(instances)
-
-	return instances, count
+	return instances
 }
