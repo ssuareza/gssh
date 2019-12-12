@@ -5,17 +5,17 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
-func TestMyFunc(t *testing.T) {
-	_, count := Filter(testData())
-	if count != 2 {
-		t.Error("Number of instances expected 2")
-	}
+// Define a mock struct to be used in your unit tests of myFunc.
+type mockEC2Client struct {
+	ec2iface.EC2API
 }
 
-func testData() *ec2.DescribeInstancesOutput {
-	output := &ec2.DescribeInstancesOutput{
+// DescribeInstances mock
+func (m *mockEC2Client) DescribeInstances(*ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, error) {
+	return &ec2.DescribeInstancesOutput{
 		Reservations: []*ec2.Reservation{
 			&ec2.Reservation{
 				OwnerId: aws.String("1234567890"),
@@ -57,7 +57,18 @@ func testData() *ec2.DescribeInstancesOutput {
 				},
 			},
 		},
+	}, nil
+}
+
+func TestFilter(t *testing.T) {
+	mockSvc := &mockEC2Client{}
+
+	instances, err := NewInstances(mockSvc)
+	if err != nil {
+		t.Fail()
 	}
 
-	return output
+	if len(instances.Filter()) != 2 {
+		t.Error("Number of instances expected 2")
+	}
 }
