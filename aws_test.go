@@ -63,12 +63,12 @@ func (m *mockEC2Client) DescribeInstances(*ec2.DescribeInstancesInput) (*ec2.Des
 func TestFilter(t *testing.T) {
 	mockSvc := &mockEC2Client{}
 
-	instances, err := NewInstances(mockSvc)
+	instances, err := Get(mockSvc)
 	if err != nil {
 		t.Fail()
 	}
 
-	if len(instances.Filter()) != 2 {
+	if len(Filter(instances)) != 2 {
 		t.Error("Number of instances expected 2")
 	}
 }

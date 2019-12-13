@@ -9,11 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
-// Instances contains the list of instances obtained from aws
-type Instances struct {
-	*ec2.DescribeInstancesOutput
-}
-
 // NewService creates a service connection with ec2
 func NewService(profile string, region string) (ec2iface.EC2API, error) {
 	sess, err := session.NewSessionWithOptions(session.Options{
@@ -28,11 +23,10 @@ func NewService(profile string, region string) (ec2iface.EC2API, error) {
 	}
 
 	return ec2.New(sess), nil
-
 }
 
-// NewInstances gets the instances from aws
-func NewInstances(svc ec2iface.EC2API) (*Instances, error) {
+// Get gets the instances from aws
+func Get(svc ec2iface.EC2API) (*ec2.DescribeInstancesOutput, error) {
 	// Only grab instances that are running or just started
 	input := &ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
@@ -51,18 +45,11 @@ func NewInstances(svc ec2iface.EC2API) (*Instances, error) {
 		return nil, err
 	}
 
-	return &Instances{res}, nil
-}
-
-func nilGuard(ptr *string) string {
-	if ptr == nil {
-		return ""
-	}
-	return *ptr
+	return res, nil
 }
 
 // Filter gets only a few metadata fields from ec2.DescribeInstancesOutput
-func (i *Instances) Filter() []map[string]string {
+func Filter(i *ec2.DescribeInstancesOutput) []map[string]string {
 	var instances []map[string]string
 
 	for _, reservation := range i.Reservations {
@@ -83,4 +70,11 @@ func (i *Instances) Filter() []map[string]string {
 	}
 
 	return instances
+}
+
+func nilGuard(ptr *string) string {
+	if ptr == nil {
+		return ""
+	}
+	return *ptr
 }

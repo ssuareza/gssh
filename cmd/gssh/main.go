@@ -45,12 +45,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	instances, err := gssh.NewInstances(svc)
+	instances, err := gssh.Get(svc)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	i := instances.Filter()
+	i := gssh.Filter(instances)
 	if err != nil {
 		log.Panic(err)
 	}
