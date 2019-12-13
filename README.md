@@ -6,15 +6,26 @@ SSH client to connect AWS instances.
 ### MAC:
 ```
 brew tap ssuareza/brew git@github.com:ssuareza/homebrew-brew
-brew install ssuareza/brew/gssh
+brew install ssuareza/brew/gssh -f
 ```
 
 ### Linux:
 ```
-curl -sLo gssh https://github.com/ssuareza/gssh/releases/download/v0.0.1/gssh-v0.0.1-linux-amd64
+curl -sLo gssh curl -sLo gssh https://github.com/ssuareza/gssh/releases/download/v0.0.2/gssh-v0.0.2-linux-amd64
 chmod +x gssh
 sudo mv gssh /usr/local/bin/
 ```
+
+## Upgrade
+
+### MAC:
+```
+brew update
+brew upgrade ssuareza/brew/gssh -f
+```
+
+### Linux:
+Follow installation steps.
 
 ## Configuration
 
