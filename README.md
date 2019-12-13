@@ -18,7 +18,7 @@ sudo mv gssh /usr/local/bin/
 
 ## Configuration
 
-`gssh` it will be configured the first time launched. All configuration will be saved in "$HOME/.gssh".
+`gssh` it will be configured the first time launched. All configuration will be saved in "$HOME/.gssh/config.yaml".
 
 ## Usage
 
@@ -36,3 +36,17 @@ i-037d57f116d8f8292     app.dev         172.29.19.25
 
 Select InstanceID: i-027f3873ebf0b2bC4
 ````
+
+## Profiles
+`gssh` supports multiple aws profiles. To use it pass a list of profiles during configuration.
+
+If you want to overwite the values just edit "$HOME/.gssh/config.yaml". Example:
+```
+aws:
+  profile: prod,dev
+  region: us-east-1
+ssh:
+  bastion: bastion.domain.com
+  port: 22
+  user: myuser
+```
