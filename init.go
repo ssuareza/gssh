@@ -2,52 +2,69 @@ package gssh
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"os/user"
+
+	"github.com/spf13/viper"
 )
 
-// configure gssh
 func init() {
-	cfgFile := os.Getenv("HOME") + "/.gssh"
+	log.SetFlags(0)
 
-	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-		fmt.Print("AWS profile (default: default): ")
-		var aws string
-		fmt.Scanln(&aws)
-		if len(aws) == 0 {
-			aws = "default"
+	path := os.Getenv("HOME") + "/.gssh"
+	_ = os.Mkdir(path, 0744)
+
+	viper.SetConfigName("config")
+	viper.AddConfigPath(path)
+	viper.SetConfigType("yaml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Print("AWS profile (default default): ")
+		var awsProfile string
+		fmt.Scanln(&awsProfile)
+		if len(awsProfile) == 0 {
+			awsProfile = "default"
 		}
 
-		fmt.Print("AWS region (default: us-east-1): ")
-		var region string
-		fmt.Scanln(&region)
-		if len(region) == 0 {
-			region = "us-east-1"
+		fmt.Print("AWS region (default us-east-1): ")
+		var awsRegion string
+		fmt.Scanln(&awsRegion)
+		if len(awsRegion) == 0 {
+			awsRegion = "us-east-1"
 		}
 
-		fmt.Print("SSH user: ")
-		var user string
-		fmt.Scanln(&user)
-
-		fmt.Print("SSH port: (default: 22)")
-		var port string
-		fmt.Scanln(&port)
-		if len(port) == 0 {
-			region = "22"
+		user, err := user.Current()
+		if err != nil {
+			panic(err)
 		}
 
-		fmt.Print("SSH bastion (default: empty): ")
-		var bastion string
-		fmt.Scanln(&bastion)
+		fmt.Print("SSH user (default " + user.Name + "): ")
+		var sshUser string
+		fmt.Scanln(&sshUser)
+		if len(sshUser) == 0 {
+			sshUser = user.Name
+		}
 
-		content := `[default]
-aws = ` + aws + `
-region = ` + region + `
-user = ` + user + `
-port = ` + port + `
-bastion = ` + bastion
+		fmt.Print("SSH port (default 22): ")
+		var sshPort int
+		fmt.Scanln(&sshPort)
+		if sshPort == 0 {
+			sshPort = 22
+		}
 
-		f, _ := os.Create(cfgFile)
-		f.WriteString(content + "\n")
-		f.Close()
+		fmt.Print("SSH bastion (default empty): ")
+		var sshBastion string
+		fmt.Scanln(&sshBastion)
+
+		viper.Set("aws.profile", awsProfile)
+		viper.Set("aws.region", awsRegion)
+		viper.Set("ssh.user", sshUser)
+		viper.Set("ssh.port", sshPort)
+		viper.Set("ssh.bastion", sshBastion)
+
+		if err := viper.WriteConfigAs(path + "/config.yaml"); err != nil {
+			log.Fatal(err)
+		}
 	}
 }

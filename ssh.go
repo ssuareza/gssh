@@ -1,6 +1,7 @@
 package gssh
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -62,9 +63,9 @@ func Proxy(bastion *ssh.Client, host string, clientCfg *ssh.ClientConfig) (*ssh.
 
 // Shell opens a terminal in destination
 func Shell(host string, c Config) error {
-	user := c.User
-	port := c.Port
-	bastion := c.Bastion
+	user := c.SSH.User
+	port := fmt.Sprint(c.SSH.Port)
+	bastion := c.SSH.Bastion
 
 	// configure ssh connection
 	publicKey, err := PublicKeyFile(os.Getenv("HOME") + "/.ssh/id_rsa")

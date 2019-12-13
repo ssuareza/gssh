@@ -34,13 +34,13 @@ func getIP(id string, i []map[string]string, iptype string) (string, error) {
 
 func main() {
 	// get config
-	c, err := gssh.ReadConfig()
+	c, err := gssh.GetConfig()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	// get instances
-	svc, err := gssh.NewService(c.AWS, c.Region)
+	svc, err := gssh.NewService(c.AWS.Profile, c.AWS.Region)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func main() {
 
 	// get ip
 	iptype := "private"
-	if len(c.Bastion) == 0 {
+	if len(c.SSH.Bastion) == 0 {
 		iptype = "public"
 	}
 

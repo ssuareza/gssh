@@ -3,29 +3,47 @@ package gssh
 import (
 	"os"
 
-	"gopkg.in/ini.v1"
+	"github.com/spf13/viper"
 )
 
-// Config holds gssh configuration
-type Config struct {
-	AWS     string
+// AWS holds aws configuration
+type AWS struct {
+	Profile string
 	Region  string
+}
+
+// SSH holds ssh configuration
+type SSH struct {
 	User    string
-	Port    string
+	Port    int
 	Bastion string
 }
 
-// ReadConfig reads gssh configuration
-func ReadConfig() (Config, error) {
-	cfgFile := os.Getenv("HOME") + "/.gssh"
-	cfg, err := ini.Load(cfgFile)
+// Config holds all configuration
+type Config struct {
+	AWS AWS
+	SSH SSH
+}
 
-	// get entries
-	aws := cfg.Section("default").Key("aws").String()
-	region := cfg.Section("default").Key("region").String()
-	user := cfg.Section("default").Key("user").String()
-	port := cfg.Section("default").Key("port").String()
-	bastion := cfg.Section("default").Key("bastion").String()
+// GetConfig reads gssh configuration
+func GetConfig() (Config, error) {
+	path := os.Getenv("HOME") + "/.gssh"
+	viper.SetConfigName("config")
+	viper.AddConfigPath(path)
+	viper.SetConfigType("yaml")
+	if err := viper.ReadInConfig(); err != nil {
+		return Config{}, err
+	}
 
-	return Config{AWS: aws, Region: region, User: user, Port: port, Bastion: bastion}, err
+	return Config{
+		AWS{
+			Profile: viper.GetString("aws.profile"),
+			Region:  viper.GetString("aws.region"),
+		},
+		SSH{
+			User:    viper.GetString("ssh.user"),
+			Port:    viper.GetInt("ssh.port"),
+			Bastion: viper.GetString("ssh.bastion"),
+		},
+	}, nil
 }
