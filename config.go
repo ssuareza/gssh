@@ -21,26 +21,26 @@ type SSH struct {
 
 // Config holds all configuration
 type Config struct {
-	AWS AWS
-	SSH SSH
+	AWS *AWS
+	SSH *SSH
 }
 
 // GetConfig reads gssh configuration
-func GetConfig() (Config, error) {
+func GetConfig() (*Config, error) {
 	path := os.Getenv("HOME") + "/.gssh"
 	viper.SetConfigName("config")
 	viper.AddConfigPath(path)
 	viper.SetConfigType("yaml")
 	if err := viper.ReadInConfig(); err != nil {
-		return Config{}, err
+		return &Config{}, err
 	}
 
-	return Config{
-		AWS{
+	return &Config{
+		&AWS{
 			Profile: viper.GetString("aws.profile"),
 			Region:  viper.GetString("aws.region"),
 		},
-		SSH{
+		&SSH{
 			User:    viper.GetString("ssh.user"),
 			Port:    viper.GetInt("ssh.port"),
 			Bastion: viper.GetString("ssh.bastion"),

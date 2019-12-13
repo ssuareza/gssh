@@ -62,7 +62,7 @@ func Proxy(bastion *ssh.Client, host string, clientCfg *ssh.ClientConfig) (*ssh.
 }
 
 // Shell opens a terminal in destination
-func Shell(host string, c Config) error {
+func Shell(host string, c *Config) error {
 	user := c.SSH.User
 	port := fmt.Sprint(c.SSH.Port)
 	bastion := c.SSH.Bastion
