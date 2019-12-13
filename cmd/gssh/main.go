@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/gosuri/uitable"
 	"github.com/ssuareza/gssh"
 )
@@ -17,7 +19,7 @@ func print(i []map[string]string) {
 	for _, instance := range i {
 		table.AddRow(instance["instance-id"], instance["tag:Name"], instance["private-ip"], instance["public-ip"])
 	}
-	fmt.Println(table)
+	fmt.Printf("%s\n\n", table)
 }
 
 func getIP(id string, i []map[string]string, iptype string) (string, error) {
@@ -40,14 +42,19 @@ func main() {
 	}
 
 	// get instances
-	svc, err := gssh.NewService(c.AWS.Profile, c.AWS.Region)
-	if err != nil {
-		log.Fatal(err)
-	}
+	profiles := strings.Split(c.AWS.Profile, ",")
+	var instances []*ec2.DescribeInstancesOutput
+	for k := range profiles {
+		svc, err := gssh.NewService(profiles[k], c.AWS.Region)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	instances, err := gssh.Get(svc)
-	if err != nil {
-		log.Fatal(err)
+		list, err := gssh.Get(svc)
+		if err != nil {
+			log.Fatal(err)
+		}
+		instances = append(instances, list)
 	}
 
 	i := gssh.Filter(instances)

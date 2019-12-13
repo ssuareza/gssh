@@ -48,24 +48,26 @@ func Get(svc ec2iface.EC2API) (*ec2.DescribeInstancesOutput, error) {
 	return res, nil
 }
 
-// Filter gets only a few metadata fields from ec2.DescribeInstancesOutput
-func Filter(i *ec2.DescribeInstancesOutput) []map[string]string {
+// Filter gets only a few metadata fields
+func Filter(i []*ec2.DescribeInstancesOutput) []map[string]string {
 	var instances []map[string]string
 
-	for _, reservation := range i.Reservations {
-		for _, instance := range reservation.Instances {
-			record := make(map[string]string)
-			record["instance-id"] = nilGuard(instance.InstanceId)
-			record["public-hostname"] = nilGuard(instance.PublicDnsName)
-			record["public-ip"] = nilGuard(instance.PublicIpAddress)
-			record["private-hostname"] = nilGuard(instance.PrivateDnsName)
-			record["private-ip"] = nilGuard(instance.PrivateIpAddress)
+	for _, list := range i {
+		for _, reservation := range list.Reservations {
+			for _, instance := range reservation.Instances {
+				record := make(map[string]string)
+				record["instance-id"] = nilGuard(instance.InstanceId)
+				record["public-hostname"] = nilGuard(instance.PublicDnsName)
+				record["public-ip"] = nilGuard(instance.PublicIpAddress)
+				record["private-hostname"] = nilGuard(instance.PrivateDnsName)
+				record["private-ip"] = nilGuard(instance.PrivateIpAddress)
 
-			for _, tag := range instance.Tags {
-				record[fmt.Sprintf("tag:%s", *tag.Key)] = *tag.Value
+				for _, tag := range instance.Tags {
+					record[fmt.Sprintf("tag:%s", *tag.Key)] = *tag.Value
+				}
+
+				instances = append(instances, record)
 			}
-
-			instances = append(instances, record)
 		}
 	}
 
