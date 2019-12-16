@@ -12,23 +12,23 @@ import (
 	"github.com/ssuareza/gssh"
 )
 
-func print(i []map[string]string) {
+func printTable(i []gssh.Server) {
 	table := uitable.New()
 	table.MaxColWidth = 50
 	table.AddRow("InstanceID", "Name", "PrivateIP", "PublicIP")
 	for _, instance := range i {
-		table.AddRow(instance["instance-id"], instance["tag:Name"], instance["private-ip"], instance["public-ip"])
+		table.AddRow(instance.Values["instance-id"], instance.Name, instance.Values["private-ip"], instance.Values["public-ip"])
 	}
 	fmt.Printf("%s\n\n", table)
 }
 
-func getIP(id string, i []map[string]string, iptype string) (string, error) {
+func getIP(id string, i []gssh.Server, iptype string) (string, error) {
 	for _, instance := range i {
-		if instance["instance-id"] == id {
+		if instance.Values["instance-id"] == id {
 			if iptype == "public" {
-				return instance["public-ip"], nil
+				return instance.Values["public-ip"], nil
 			}
-			return instance["private-ip"], nil
+			return instance.Values["private-ip"], nil
 		}
 	}
 	return "", errors.New("IP not found")
@@ -61,7 +61,8 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	print(i)
+
+	printTable(i)
 
 	// select instance
 	fmt.Print("Select InstanceID: ")

@@ -2,6 +2,7 @@ package gssh
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -48,9 +49,22 @@ func Get(svc ec2iface.EC2API) (*ec2.DescribeInstancesOutput, error) {
 	return res, nil
 }
 
+// Server contains the server information (id, ip, etc.)
+type Server struct {
+	Name   string
+	Values map[string]string
+}
+
+// ByName is used to sort Server by Name
+type ByName []Server
+
+func (a ByName) Len() int           { return len(a) }
+func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
+func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+
 // Filter gets only a few metadata fields
-func Filter(i []*ec2.DescribeInstancesOutput) []map[string]string {
-	var instances []map[string]string
+func Filter(i []*ec2.DescribeInstancesOutput) []Server {
+	instances := []Server{}
 
 	for _, list := range i {
 		for _, reservation := range list.Reservations {
@@ -66,10 +80,15 @@ func Filter(i []*ec2.DescribeInstancesOutput) []map[string]string {
 					record[fmt.Sprintf("tag:%s", *tag.Key)] = *tag.Value
 				}
 
-				instances = append(instances, record)
+				instances = append(instances, Server{
+					Name:   record["tag:Name"],
+					Values: record,
+				})
 			}
 		}
 	}
+
+	sort.Sort(ByName(instances))
 
 	return instances
 }
