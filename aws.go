@@ -27,7 +27,11 @@ func NewService(profile string, region string) (ec2iface.EC2API, error) {
 }
 
 // Get gets the instances from aws
-func Get(svc ec2iface.EC2API) (*ec2.DescribeInstancesOutput, error) {
+func Get(svc ec2iface.EC2API, filter string) (*ec2.DescribeInstancesOutput, error) {
+	if len(filter) == 0 {
+		filter = "*"
+	}
+
 	// Only grab instances that are running or just started
 	input := &ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
@@ -36,6 +40,12 @@ func Get(svc ec2iface.EC2API) (*ec2.DescribeInstancesOutput, error) {
 				Values: []*string{
 					aws.String("running"),
 					aws.String("pending"),
+				},
+			},
+			&ec2.Filter{
+				Name: aws.String("tag:Name"),
+				Values: []*string{
+					aws.String("*" + filter + "*"),
 				},
 			},
 		},
