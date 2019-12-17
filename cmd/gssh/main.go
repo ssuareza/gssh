@@ -16,7 +16,7 @@ import (
 func printTable(i []gssh.Server) {
 	table := uitable.New()
 	table.MaxColWidth = 50
-	table.AddRow(color.BlueString("InstanceID"), color.BlueString("Name"), color.BlueString("PrivateIP"), color.BlueString("PublicIP"))
+	table.AddRow(color.YellowString("InstanceID"), color.YellowString("Name"), color.YellowString("PrivateIP"), color.YellowString("PublicIP"))
 	for _, instance := range i {
 		table.AddRow(color.GreenString(instance.Values["instance-id"]), instance.Name, instance.Values["private-ip"], instance.Values["public-ip"])
 	}
