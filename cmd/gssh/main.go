@@ -69,15 +69,22 @@ func main() {
 		log.Panic(err)
 	}
 
-	// filter
-	printTable(i)
-
-	// select instance
-	fmt.Print("Select InstanceID: ")
 	var instanceID string
-	_, err = fmt.Scanln(&instanceID)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	// if there is only 1 instance
+	if len(i) == 1 {
+		instanceID = i[0].Values["instance-id"]
+	}
+	// or print list of instances
+	if len(i) > 1 {
+		// filter
+		printTable(i)
+
+		// select instance
+		fmt.Print("Select InstanceID: ")
+		_, err = fmt.Scanln(&instanceID)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
 	}
 
 	// get ip
