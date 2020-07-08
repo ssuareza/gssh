@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -10,30 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/fatih/color"
 	"github.com/gosuri/uitable"
-	"github.com/ssuareza/gssh"
+	"github.com/ssuareza/gssh/pkg/gssh"
 )
-
-func printTable(i []gssh.Server) {
-	table := uitable.New()
-	table.MaxColWidth = 50
-	table.AddRow(color.YellowString("InstanceID"), color.YellowString("Name"), color.YellowString("PrivateIP"), color.YellowString("PublicIP"))
-	for _, instance := range i {
-		table.AddRow(color.GreenString(instance.Values["instance-id"]), instance.Name, instance.Values["private-ip"], instance.Values["public-ip"])
-	}
-	fmt.Printf("%s\n\n", table)
-}
-
-func getIP(id string, i []gssh.Server, iptype string) (string, error) {
-	for _, instance := range i {
-		if instance.Values["instance-id"] == id {
-			if iptype == "public" {
-				return instance.Values["public-ip"], nil
-			}
-			return instance.Values["private-ip"], nil
-		}
-	}
-	return "", errors.New("IP not found")
-}
 
 func main() {
 	// args
@@ -64,7 +41,7 @@ func main() {
 		instances = append(instances, list)
 	}
 
-	i := gssh.Filter(instances)
+	i := gssh.Metadata(instances)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -93,11 +70,21 @@ func main() {
 		iptype = "public"
 	}
 
-	ip, err := (getIP(instanceID, i, iptype))
+	ip, err := (gssh.GetIP(instanceID, i, iptype))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// and connect
 	gssh.Shell(ip, c)
+}
+
+func printTable(i []gssh.Server) {
+	table := uitable.New()
+	table.MaxColWidth = 50
+	table.AddRow(color.YellowString("InstanceID"), color.YellowString("Name"), color.YellowString("PrivateIP"), color.YellowString("PublicIP"))
+	for _, instance := range i {
+		table.AddRow(color.GreenString(instance.Values["instance-id"]), instance.Name, instance.Values["private-ip"], instance.Values["public-ip"])
+	}
+	fmt.Printf("%s\n\n", table)
 }

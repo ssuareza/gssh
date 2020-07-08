@@ -10,8 +10,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// PublicKeyFile returns publickey content
-func PublicKeyFile(file string) (ssh.AuthMethod, error) {
+// GetPublicKey returns publickey content
+func GetPublicKey(file string) (ssh.AuthMethod, error) {
 	buffer, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -21,6 +21,7 @@ func PublicKeyFile(file string) (ssh.AuthMethod, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return ssh.PublicKeys(key), nil
 }
 
@@ -68,7 +69,7 @@ func Shell(host string, c *Config) error {
 	bastion := c.SSH.Bastion
 
 	// configure ssh connection
-	publicKey, err := PublicKeyFile(os.Getenv("HOME") + "/.ssh/id_rsa")
+	publicKey, err := GetPublicKey(os.Getenv("HOME") + "/.ssh/id_rsa")
 	if err != nil {
 		log.Println(err)
 	}
@@ -82,22 +83,19 @@ func Shell(host string, c *Config) error {
 
 	// connect
 	// trough bastion
+	var conn *ssh.Client
 	if len(bastion) != 0 {
-		conn, _ := ssh.Dial("tcp", bastion+":"+port, config)
-		defer conn.Close()
-		newConn, err := Proxy(conn, host+":"+port, config)
+		conn, _ = ssh.Dial("tcp", bastion+":"+port, config)
+		conn, err = Proxy(conn, host+":"+port, config)
 		if err != nil {
 			return err
 		}
-
-		// open terminal
-		Connect(newConn)
 	} else { // or not
-		conn, _ := ssh.Dial("tcp", host+":"+port, config)
-		defer conn.Close()
-
-		// open terminal
-		Connect(conn)
+		conn, _ = ssh.Dial("tcp", host+":"+port, config)
 	}
+	defer conn.Close()
+
+	// open terminal
+	Connect(conn)
 	return err
 }

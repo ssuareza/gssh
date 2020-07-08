@@ -35,14 +35,14 @@ func Get(svc ec2iface.EC2API, filter string) (*ec2.DescribeInstancesOutput, erro
 	// Only grab instances that are running or just started
 	input := &ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
-			&ec2.Filter{
+			{
 				Name: aws.String("instance-state-name"),
 				Values: []*string{
 					aws.String("running"),
 					aws.String("pending"),
 				},
 			},
-			&ec2.Filter{
+			{
 				Name: aws.String("tag:Name"),
 				Values: []*string{
 					aws.String("*" + filter + "*"),
@@ -72,8 +72,8 @@ func (a ByName) Len() int           { return len(a) }
 func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
 func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-// Filter gets only a few metadata fields
-func Filter(i []*ec2.DescribeInstancesOutput) []Server {
+// Metadata gets only a few metadata fields
+func Metadata(i []*ec2.DescribeInstancesOutput) []Server {
 	instances := []Server{}
 
 	for _, list := range i {

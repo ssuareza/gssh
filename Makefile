@@ -26,3 +26,6 @@ build/gssh-$(version)-darwin-amd64: ${files}
 
 checksums: build
 	cd build/ && ${shasum} * > $(version)-SHA256SUMS
+
+test:
+	@go test -v pkg/gssh/*
